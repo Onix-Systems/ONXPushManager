@@ -20,13 +20,13 @@ class PushInfo {
     var customObject : AnyObject?
 }
 
-class PushManager: NSObject {
-    var latestToken: String?
-    var pendingPush : PushInfo?
+class ONXPushManager: NSObject {
+    private var latestToken: String?
+    private var pendingPush : PushInfo?
     
-    class var manager : PushManager {
+    class var manager : ONXPushManager {
         struct Static {
-            static let instance : PushManager = PushManager()
+            static let instance : ONXPushManager = ONXPushManager()
         }
         
         return Static.instance
@@ -39,7 +39,7 @@ class PushManager: NSObject {
             UIApplicationDidFinishLaunchingNotification, object: nil)
     }
     
-    func iOS8() -> Bool {
+    private func iOS8() -> Bool {
         switch UIDevice.currentDevice().systemVersion.compare("8.0.0", options: NSStringCompareOptions.NumericSearch) {
         case .OrderedSame, .OrderedDescending:
             return true
@@ -118,7 +118,7 @@ class PushManager: NSObject {
         self.updatePushesWithLatestToken()
     }
     
-    func actFromPush(var pushInfo: PushInfo) {
+    internal func actFromPush(var pushInfo: PushInfo) {
         //Your actions upon push here, below is example
         
 //        let userInfo = pushInfo.userInfo
@@ -137,7 +137,7 @@ class PushManager: NSObject {
 //        }
     }
     
-    func updatePushesWithLatestToken() {
+    internal func updatePushesWithLatestToken() {
         //Method for updating your server with latest token saved. You should probably call it on token retrieve and upon login, but don't forget to check authToken and pushToken as shown in example:
         
 //        if let sessionToken = ServerManager.authToken {
@@ -166,9 +166,9 @@ class PushManager: NSObject {
     }
     
     //MARK: Notifications
-    func onApplicationDidFinishLaunching(notification: NSNotification) {
+    private func onApplicationDidFinishLaunching(notification: NSNotification) {
         if let remoteOptions = notification.userInfo?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
-            self.handleDidRecieveNotification(remoteOptions, app: notification.object as UIApplication, handler: nil)
+            self.handleDidRecieveNotification(remoteOptions, app: notification.object as! UIApplication, handler: nil)
         }
     }
     

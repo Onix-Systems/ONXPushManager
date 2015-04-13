@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>361FFE37-B4D6-471C-8494-068F2CA771FD</string>
+	<key>IDESourceControlProjectName</key>
+	<string>PushManagerUsage</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>760B4EE5E56AA3B8354334B1EED47EC710BFC0B7</key>
+		<string>https://bitbucket.org/am_nezhyborets/debts-ios.git</string>
+		<key>8F4AACE33067F059DD8A998CDAA8AD283D8849BA</key>
+		<string>https://github.com/Onix-Systems/ONXPushManager.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>PushManagerUsage.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>760B4EE5E56AA3B8354334B1EED47EC710BFC0B7</key>
+		<string>../../..</string>
+		<key>8F4AACE33067F059DD8A998CDAA8AD283D8849BA</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/Onix-Systems/ONXPushManager.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>8F4AACE33067F059DD8A998CDAA8AD283D8849BA</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>760B4EE5E56AA3B8354334B1EED47EC710BFC0B7</string>
+			<key>IDESourceControlWCCName</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8F4AACE33067F059DD8A998CDAA8AD283D8849BA</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ONXPushManager</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -13,7 +13,7 @@
 		2F86FF311AD339380085BC6A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F86FF301AD339380085BC6A /* Images.xcassets */; };
 		2F86FF341AD339380085BC6A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F86FF321AD339380085BC6A /* LaunchScreen.xib */; };
 		2F86FF401AD339390085BC6A /* PushManagerUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F86FF3F1AD339390085BC6A /* PushManagerUsageTests.swift */; };
-		2F86FF4A1AD3398E0085BC6A /* PushManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F86FF491AD3398E0085BC6A /* PushManager.swift */; };
+		2F86FF4A1AD3398E0085BC6A /* ONXPushManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F86FF491AD3398E0085BC6A /* ONXPushManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,7 +37,7 @@
 		2F86FF391AD339390085BC6A /* PushManagerUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PushManagerUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F86FF3E1AD339390085BC6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F86FF3F1AD339390085BC6A /* PushManagerUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushManagerUsageTests.swift; sourceTree = "<group>"; };
-		2F86FF491AD3398E0085BC6A /* PushManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushManager.swift; sourceTree = SOURCE_ROOT; };
+		2F86FF491AD3398E0085BC6A /* ONXPushManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ONXPushManager.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +79,7 @@
 		2F86FF261AD339380085BC6A /* PushManagerUsage */ = {
 			isa = PBXGroup;
 			children = (
-				2F86FF491AD3398E0085BC6A /* PushManager.swift */,
+				2F86FF491AD3398E0085BC6A /* ONXPushManager.swift */,
 				2F86FF291AD339380085BC6A /* AppDelegate.swift */,
 				2F86FF2B1AD339380085BC6A /* ViewController.swift */,
 				2F86FF2D1AD339380085BC6A /* Main.storyboard */,
@@ -215,7 +215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2F86FF4A1AD3398E0085BC6A /* PushManager.swift in Sources */,
+				2F86FF4A1AD3398E0085BC6A /* ONXPushManager.swift in Sources */,
 				2F86FF2C1AD339380085BC6A /* ViewController.swift in Sources */,
 				2F86FF2A1AD339380085BC6A /* AppDelegate.swift in Sources */,
 			);
