@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
-import UIKit
+import KeychainAccess
 
 class PushInfo {
     let userInfo : [NSObject : AnyObject]
@@ -21,23 +21,18 @@ class PushInfo {
 }
 
 class ONXPushManager: NSObject {
-    private var latestToken: String?
+    internal let keychain = Keychain(service: NSBundle.mainBundle().bundleIdentifier!)
+    internal var latestToken: String?
     private var pendingPush : PushInfo?
-    
-    class var manager : ONXPushManager {
-        struct Static {
-            static let instance : ONXPushManager = ONXPushManager()
-        }
-        
-        return Static.instance
-    }
-    
-    override init() {
-        super.init()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "onApplicationDidFinishLaunching:", name:
-            UIApplicationDidFinishLaunchingNotification, object: nil)
-    }
+
+    //This should be implemented in subclass
+//    class var manager : ONXPushManager {
+//        struct Static {
+//            static let instance : ONXPushManager = ONXPushManager()
+//        }
+//        
+//        return Static.instance
+//    }
     
     private func iOS8() -> Bool {
         switch UIDevice.currentDevice().systemVersion.compare("8.0.0", options: NSStringCompareOptions.NumericSearch) {
@@ -49,16 +44,19 @@ class ONXPushManager: NSObject {
     }
     
     //MARK: Public API
-    func registerDevice() {
+    func start(app: UIApplication, launchOptions: [String : AnyObject]?) {
         if iOS8() {
             let types: UIUserNotificationType = .Badge | .Sound | .Alert;
-            
             let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
             
-            UIApplication.sharedApplication().registerUserNotificationSettings(mySettings)
+            app.registerUserNotificationSettings(mySettings)
         } else {
             let myTypes: UIRemoteNotificationType = .Badge | .Alert | .Sound
-            UIApplication.sharedApplication().registerForRemoteNotificationTypes(myTypes)
+            app.registerForRemoteNotificationTypes(myTypes)
+        }
+        
+        if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
+            self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
         }
     }
     
@@ -119,6 +117,8 @@ class ONXPushManager: NSObject {
     }
     
     internal func actFromPush(var pushInfo: PushInfo) {
+        fatalError("actFromPush should be overridden")
+        
         //Your actions upon push here, below is example
         
 //        let userInfo = pushInfo.userInfo
@@ -138,7 +138,10 @@ class ONXPushManager: NSObject {
     }
     
     internal func updatePushesWithLatestToken() {
-        //Method for updating your server with latest token saved. You should probably call it on token retrieve and upon login, but don't forget to check authToken and pushToken as shown in example:
+        fatalError("updatePushesWithLatestToken should be overridden")
+        
+        //Method for updating your server with latest token saved.
+        //You should probably call it on token retrieve and upon login, but don't forget to check authToken and pushToken as shown in example (Should call savePushToken at some point.)
         
 //        if let sessionToken = ServerManager.authToken {
 //            if let deviceToken = self.latestToken {
@@ -165,19 +168,11 @@ class ONXPushManager: NSObject {
 //        }
     }
     
-    //MARK: Notifications
-    private func onApplicationDidFinishLaunching(notification: NSNotification) {
-        if let remoteOptions = notification.userInfo?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
-            self.handleDidRecieveNotification(remoteOptions, app: notification.object as! UIApplication, handler: nil)
-        }
+    internal func savePushToken(token: String) {
+        self.keychain["savedPush"] = token
     }
     
-    //MARK: Private API
-    private func sendPushReceivedNotification(pushInfo: PushInfo, key: String) {
-        let kNotificationDataKey = "ANYKEY" //Use the key you need here
-        
-        let pushInfo = [kNotificationDataKey : pushInfo]
-        
-        NSNotificationCenter.defaultCenter().postNotificationName(key, object: self, userInfo: pushInfo)
+    func deleteTokenFromBackend() {
+        fatalError("delete should be overridden")
     }
 }
