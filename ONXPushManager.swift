@@ -22,6 +22,7 @@ class PushInfo {
 
 class ONXPushManager: NSObject {
     internal let keychain = Keychain(service: NSBundle.mainBundle().bundleIdentifier!)
+    internal let kKeychainPushToken = "kKeychainPushToken"
     internal var latestToken: String?
     private var pendingPush : PushInfo?
 
@@ -169,7 +170,7 @@ class ONXPushManager: NSObject {
     }
     
     internal func savePushToken(token: String) {
-        self.keychain["savedPush"] = token
+        self.keychain[kKeychainPushToken] = token
     }
     
     func deleteTokenFromBackend() {
