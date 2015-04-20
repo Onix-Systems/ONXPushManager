@@ -112,7 +112,7 @@ class ONXPushManager: NSObject {
         println("DidRegisterWithTokenData bytes \(data.bytes)")
         let trimmedString = data.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
         self.latestToken = trimmedString.stringByReplacingOccurrencesOfString(" ", withString: "", options: .allZeros, range: nil)
-        println("self.latestToken \(self.latestToken)")
+        println(" handleDidRegisterWithTokenDataself.latestToken \(self.latestToken)")
         
         self.updatePushesWithLatestToken()
     }
@@ -169,7 +169,7 @@ class ONXPushManager: NSObject {
 //        }
     }
     
-    internal func savePushToken(token: String) {
+    internal func savePushToken(token: String?) {
         self.keychain[kKeychainPushToken] = token
     }
     
