@@ -169,6 +169,10 @@ class ONXPushManager: NSObject {
 //        }
     }
     
+    internal func savedPushToken() -> String? {
+        return self.keychain[kKeychainPushToken]
+    }
+    
     internal func savePushToken(token: String?) {
         self.keychain[kKeychainPushToken] = token
     }
