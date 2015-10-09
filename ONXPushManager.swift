@@ -6,8 +6,6 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
-import KeychainAccess
-
 class PushInfo {
     let userInfo : [NSObject : AnyObject]
     let receivedAtState : UIApplicationState
@@ -46,13 +44,13 @@ class ONXPushManager: NSObject {
     
     //MARK: Public API
     func start(app: UIApplication, launchOptions: [String : AnyObject]?) {
-        if iOS8() {
-            let types: UIUserNotificationType = .Badge | .Sound | .Alert;
+        if #available(iOS 8.0, *) {
+            let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
             let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
             
             app.registerUserNotificationSettings(mySettings)
         } else {
-            let myTypes: UIRemoteNotificationType = .Badge | .Alert | .Sound
+            let myTypes: UIRemoteNotificationType = [.Badge, .Alert, .Sound]
             app.registerForRemoteNotificationTypes(myTypes)
         }
         
@@ -78,46 +76,41 @@ class ONXPushManager: NSObject {
     }
     
     func handleDidFailToRegisterWithError(error: NSError) {
-        println("ERROR \(error)")
+        print("ERROR \(error)")
     }
     
     func handleDidRecieveNotification(userInfo: [NSObject : AnyObject], app: UIApplication, handler: ((UIBackgroundFetchResult) -> Void)?) {
-        println("PUSH \(userInfo)")
+        print("PUSH \(userInfo)")
                 
         switch app.applicationState {
         case .Active:
-            println("state - active")
+            print("state - active")
             self.pendingPush = nil
             
             let pushInfo = PushInfo(userInfo: userInfo, applicationState: app.applicationState)
             self.actFromPush(pushInfo)
         case .Inactive:
-            println("state - inactive")
+            print("state - inactive")
             self.pendingPush = PushInfo(userInfo: userInfo, applicationState: app.applicationState)
         case .Background:
-            println("state - background")
-        default:
-            println("state - default")
+            print("state - background")
         }
         
         handler?(UIBackgroundFetchResult.NoData)
     }
     
-    func handleDidRegisterUserNotificationSettings(settings: UIUserNotificationSettings, application: UIApplication) {
-        application.registerForRemoteNotifications()
-    }
-    
     func handleDidRegisterWithTokenData(data: NSData) {
-        let bytes = data.bytes
-        println("DidRegisterWithTokenData bytes \(data.bytes)")
+        print("DidRegisterWithTokenData bytes \(data.bytes)")
         let trimmedString = data.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
-        self.latestToken = trimmedString.stringByReplacingOccurrencesOfString(" ", withString: "", options: .allZeros, range: nil)
-        println(" handleDidRegisterWithTokenDataself.latestToken \(self.latestToken)")
+        self.latestToken = trimmedString.stringByReplacingOccurrencesOfString(" ", withString: "", options: [], range: nil)
+//        UIAlertView(title: "Token", message: self.latestToken ?: "No token", delegate: nil, cancelButtonTitle: nil).show()
+        
+        print(" handleDidRegisterWithTokenDataself.latestToken \(self.latestToken)")
         
         self.updatePushesWithLatestToken()
     }
     
-    internal func actFromPush(var pushInfo: PushInfo) {
+    func actFromPush(pushInfo: PushInfo) {
         fatalError("actFromPush should be overridden")
         
         //Your actions upon push here, below is example
@@ -138,7 +131,7 @@ class ONXPushManager: NSObject {
 //        }
     }
     
-    internal func updatePushesWithLatestToken() {
+    func updatePushesWithLatestToken() {
         fatalError("updatePushesWithLatestToken should be overridden")
         
         //Method for updating your server with latest token saved.
@@ -169,15 +162,20 @@ class ONXPushManager: NSObject {
 //        }
     }
     
-    internal func savedPushToken() -> String? {
+    func savedPushToken() -> String? {
         return self.keychain[kKeychainPushToken]
     }
     
-    internal func savePushToken(token: String?) {
+    func savePushToken(token: String?) {
         self.keychain[kKeychainPushToken] = token
     }
     
     func deleteTokenFromBackend() {
         fatalError("delete should be overridden")
+    }
+        
+    @available(iOS 8.0, *)
+    func handleDidRegisterUserNotificationSettings(settings: UIUserNotificationSettings, application: UIApplication) {
+        application.registerForRemoteNotifications()
     }
 }
