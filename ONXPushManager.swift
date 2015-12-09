@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
+import KeychainAccess
+
 class PushInfo {
     let userInfo : [NSObject : AnyObject]
     let receivedAtState : UIApplicationState
