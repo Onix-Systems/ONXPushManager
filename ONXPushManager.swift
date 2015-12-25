@@ -8,7 +8,7 @@
 
 import KeychainAccess
 
-class PushInfo {
+class PushInfo : NSObject {
     let userInfo : [NSObject : AnyObject]
     let receivedAtState : UIApplicationState
     
