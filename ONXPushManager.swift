@@ -25,7 +25,6 @@ class ONXPushManager: NSObject {
     internal let kKeychainPushToken = "kKeychainPushToken"
     internal var latestToken: String?
     private var pendingPush : PushInfo?
-    var delay = 0.5
 
     //This should be implemented in subclass
 //    class var manager : ONXPushManager {
@@ -65,14 +64,7 @@ class ONXPushManager: NSObject {
     //MARK: Handling AppDelegate actions
     func handleApplicationDidBecomeActive(app: UIApplication) {
         if let push = self.pendingPush { //Means that poll_id has been received before the app became active, and once it's active we need to do some action
-            let delayTime = dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(self.delay * Double(NSEC_PER_SEC))
-            )
-            
-            dispatch_after(delayTime, dispatch_get_main_queue(), { () -> Void in //Small quick hack, probably need replacement
-                self.actFromPush(push)
-            })
+            self.actFromPush(push)
         }
         
         self.pendingPush = nil
