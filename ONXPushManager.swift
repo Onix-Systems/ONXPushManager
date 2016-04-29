@@ -6,8 +6,6 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
-import KeychainAccess
-
 class PushInfo : NSObject {
     let userInfo : [NSObject : AnyObject]
     let receivedAtState : UIApplicationState
@@ -20,20 +18,22 @@ class PushInfo : NSObject {
     var customObject : AnyObject?
 }
 
+@objc protocol ONXPushManagerDelegate : NSObjectProtocol {
+    func savedPushTokenForPushManager(manager: ONXPushManager) -> String?
+    func pushManager(manager: ONXPushManager, didSavePushToken: String?)
+    func pushToken(token: String, shouldBeUpdatedWithToken: String, manager: ONXPushManager)
+    func pushTokenShouldBeStored(token: String, manager: ONXPushManager)
+    func pushTokenForStoringNotFoundInManager(manager: ONXPushManager)
+    func pushDelegateShouldActOnPush(pushInfo: PushInfo, manager: ONXPushManager)
+}
+
 class ONXPushManager: NSObject {
-    internal let keychain = Keychain(service: NSBundle.mainBundle().bundleIdentifier!)
-    internal let kKeychainPushToken = "kKeychainPushToken"
+//    internal let keychain = Keychain(service: NSBundle.mainBundle().bundleIdentifier!)
+//    internal let kKeychainPushToken = "kKeychainPushToken"
+    
+    weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
     private var pendingPush : PushInfo?
-
-    //This should be implemented in subclass
-//    class var manager : ONXPushManager {
-//        struct Static {
-//            static let instance : ONXPushManager = ONXPushManager()
-//        }
-//        
-//        return Static.instance
-//    }
     
     private func iOS8() -> Bool {
         switch UIDevice.currentDevice().systemVersion.compare("8.0.0", options: NSStringCompareOptions.NumericSearch) {
@@ -106,10 +106,9 @@ class ONXPushManager: NSObject {
     }
     
     func actFromPush(pushInfo: PushInfo) {
-        fatalError("actFromPush should be overridden")
+        self.delegate?.pushDelegateShouldActOnPush(pushInfo, manager: self)
         
         //Your actions upon push here, below is example
-        
 //        let userInfo = pushInfo.userInfo
 //        if let inboxBadgeNumber = userInfo["inbox_badge"] as? Int {
 //            NSNotificationCenter.defaultCenter().postNotificationName(kInboxBadgeValuePushRecievedNotification, object: nil, userInfo: [kNotificationDataKey : inboxBadgeNumber])
@@ -127,42 +126,33 @@ class ONXPushManager: NSObject {
     }
     
     func updatePushesWithLatestToken() {
-        fatalError("updatePushesWithLatestToken should be overridden")
-        
         //Method for updating your server with latest token saved.
         //You should probably call it on token retrieve and upon login, but don't forget to check authToken and pushToken as shown in example (Should call savePushToken at some point.)
         
-//        if let sessionToken = ServerManager.authToken {
-//            if let deviceToken = self.latestToken {
-//                let request = UpdateDeviceRequest(token: deviceToken)
-//                request.completionBlock  = { (responseJson, error) -> () in
-//                    println("updatePushesWithLatestToken error \(error)")
-//                    println("updatePushesWithLatestToken json \(responseJson)")
-//                    
-//                    if let uError = error {
-//                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                            errorAlert(uError.localizedDescription)
-//                        })
-//                    }
-//                }
-//                
-//                ServerManager.manager.runRequest(request)
-//            } else {
-//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                                    errorAlert("No token found for Push Notification registration. You won't recieve push notifications for this device. Please try to relogin.")
-//                })
-//            }
-//        } else {
-//            println("updatePushesWithLatestToken - no authToken");
-//        }
+        if let deviceToken = self.latestToken {
+            if let savedToken = self.savedPushToken() {
+                if savedToken != deviceToken {
+                    //UPDATE REQUEST
+                    self.delegate?.pushToken(savedToken, shouldBeUpdatedWithToken: deviceToken, manager: self)
+                } else {
+                    print("updatePushesWithLatestToken - not updating - same token")
+                }
+            } else {
+                //POST REQUEST
+                self.delegate?.pushTokenShouldBeStored(deviceToken, manager: self)
+            }
+        }
+        else {
+            self.delegate?.pushTokenForStoringNotFoundInManager(self)
+        }
     }
     
     func savedPushToken() -> String? {
-        return self.keychain[kKeychainPushToken]
+        return self.delegate?.savedPushTokenForPushManager(self)
     }
-    
+
     func savePushToken(token: String?) {
-        self.keychain[kKeychainPushToken] = token
+        self.delegate?.pushManager(self, didSavePushToken: token)
     }
     
     func deleteTokenFromBackend() {
