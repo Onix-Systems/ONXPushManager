@@ -20,9 +20,8 @@ class PushInfo : NSObject {
 
 @objc protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(manager: ONXPushManager) -> String?
-    func pushManager(manager: ONXPushManager, didSavePushToken: String?)
-    func pushToken(token: String, shouldBeUpdatedWithToken: String, manager: ONXPushManager)
-    func pushTokenShouldBeStored(token: String, manager: ONXPushManager)
+    func pushTokenShouldBeSentToBackend(token: String, manager: ONXPushManager)
+    func pushToken(token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
     func pushTokenForStoringNotFoundInManager(manager: ONXPushManager)
     func pushDelegateShouldActOnPush(pushInfo: PushInfo, manager: ONXPushManager)
 }
@@ -110,7 +109,7 @@ class ONXPushManager: NSObject {
         self.updatePushesWithLatestToken()
     }
     
-    func actFromPush(pushInfo: PushInfo) {
+    private func actFromPush(pushInfo: PushInfo) {
         self.delegate?.pushDelegateShouldActOnPush(pushInfo, manager: self)
         
         //Your actions upon push here, below is example
@@ -138,13 +137,13 @@ class ONXPushManager: NSObject {
             if let savedToken = self.savedPushToken() {
                 if savedToken != deviceToken {
                     //UPDATE REQUEST
-                    self.delegate?.pushToken(savedToken, shouldBeUpdatedWithToken: deviceToken, manager: self)
+                    self.delegate?.pushToken(savedToken, shouldBeUpdatedOnBackendWith: deviceToken, manager: self)
                 } else {
                     print("updatePushesWithLatestToken - not updating - same token")
                 }
             } else {
                 //POST REQUEST
-                self.delegate?.pushTokenShouldBeStored(deviceToken, manager: self)
+                self.delegate?.pushTokenShouldBeSentToBackend(deviceToken, manager: self)
             }
         }
         else {
@@ -152,14 +151,10 @@ class ONXPushManager: NSObject {
         }
     }
     
-    func savedPushToken() -> String? {
+    private func savedPushToken() -> String? {
         return self.delegate?.savedPushTokenForPushManager(self)
     }
 
-    func savePushToken(token: String?) {
-        self.delegate?.pushManager(self, didSavePushToken: token)
-    }
-    
     func deleteTokenFromBackend() {
         fatalError("delete should be overridden")
     }
