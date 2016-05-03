@@ -98,7 +98,12 @@ class ONXPushManager: NSObject {
         print("DidRegisterWithTokenData bytes \(data.bytes)")
         let trimmedString = data.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
         self.latestToken = trimmedString.stringByReplacingOccurrencesOfString(" ", withString: "", options: [], range: nil)
-//        UIAlertView(title: "Token", message: self.latestToken ?: "No token", delegate: nil, cancelButtonTitle: nil).show()
+        
+        //DO NOT DELETE, useful for release debug
+//        if let token = self.latestToken {
+//            let pasteboard = UIPasteboard.generalPasteboard()
+//            pasteboard.string = token
+//        }
         
         print(" handleDidRegisterWithTokenDataself.latestToken \(self.latestToken)")
         
