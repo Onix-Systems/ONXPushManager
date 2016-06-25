@@ -24,6 +24,9 @@ class PushInfo : NSObject {
     func pushToken(token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
     func pushTokenForStoringNotFoundInManager(manager: ONXPushManager)
     func pushDelegateShouldActOnPush(pushInfo: PushInfo, manager: ONXPushManager)
+    
+    optional
+    func pushManagerDidHandleApplicationActivation(manager: ONXPushManager)
 }
 
 class ONXPushManager: NSObject {
@@ -45,15 +48,10 @@ class ONXPushManager: NSObject {
     
     //MARK: Public API
     func start(app: UIApplication, launchOptions: [String : AnyObject]?) {
-        if #available(iOS 8.0, *) {
-            let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
-            let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
-            
-            app.registerUserNotificationSettings(mySettings)
-        } else {
-            let myTypes: UIRemoteNotificationType = [.Badge, .Alert, .Sound]
-            app.registerForRemoteNotificationTypes(myTypes)
-        }
+        let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
+        let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
+        
+        app.registerUserNotificationSettings(mySettings)
         
         if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
             self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
@@ -75,7 +73,7 @@ class ONXPushManager: NSObject {
     
     func handleDidRecieveNotification(userInfo: [NSObject : AnyObject], app: UIApplication, handler: ((UIBackgroundFetchResult) -> Void)?) {
         print("PUSH \(userInfo)")
-                
+        
         switch app.applicationState {
         case .Active:
             print("state - active")
@@ -113,26 +111,11 @@ class ONXPushManager: NSObject {
         self.delegate?.pushDelegateShouldActOnPush(pushInfo, manager: self)
         
         //Your actions upon push here, below is example
-//        let userInfo = pushInfo.userInfo
-//        if let inboxBadgeNumber = userInfo["inbox_badge"] as? Int {
-//            NSNotificationCenter.defaultCenter().postNotificationName(kInboxBadgeValuePushRecievedNotification, object: nil, userInfo: [kNotificationDataKey : inboxBadgeNumber])
-//        }
-//        
-//        if let recentActivityBadgeNumber = userInfo["activity_badge"] as? Int {
-//            NSNotificationCenter.defaultCenter().postNotificationName(kRecentBadgeValuePushRecievedNotification, object: nil, userInfo: [kNotificationDataKey : recentActivityBadgeNumber])
-//        }
-//        
-//        if let pollId = userInfo["poll_id"] as? Int {
-//            let poll = Poll(id: pollId)
-//            pushInfo.customObject = poll
-//                        self.sendPushReceivedNotification(pushInfo, key: kViewPollActionRequestedNotification)
-//        }
     }
     
     func updatePushesWithLatestToken() {
         //Method for updating your server with latest token saved.
         //You should probably call it on token retrieve and upon login, but don't forget to check authToken and pushToken as shown in example (Should call savePushToken at some point.)
-        
         if let deviceToken = self.latestToken {
             if let savedToken = self.savedPushToken() {
                 if savedToken != deviceToken {
@@ -154,11 +137,7 @@ class ONXPushManager: NSObject {
     private func savedPushToken() -> String? {
         return self.delegate?.savedPushTokenForPushManager(self)
     }
-
-    func deleteTokenFromBackend() {
-        fatalError("delete should be overridden")
-    }
-        
+    
     @available(iOS 8.0, *)
     func handleDidRegisterUserNotificationSettings(settings: UIUserNotificationSettings, application: UIApplication) {
         application.registerForRemoteNotifications()
