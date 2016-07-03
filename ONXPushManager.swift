@@ -29,6 +29,12 @@ class PushInfo : NSObject {
     func pushManagerDidHandleApplicationActivation(manager: ONXPushManager)
 }
 
+enum ONXPushNotificationsRegistrationStatus {
+    case NotDetermined
+    case Registered
+    case Denied
+}
+
 class ONXPushManager: NSObject {
     weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
@@ -50,10 +56,31 @@ class ONXPushManager: NSObject {
         let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
         
         app.registerUserNotificationSettings(mySettings)
+        self.pushesPrompted = true
     }
     
     func registered() -> Bool {
-        return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
+        return pushNotificationsRegistrationStatus() == .Registered
+    }
+    
+    func pushNotificationsRegistrationStatus() -> ONXPushNotificationsRegistrationStatus {
+        if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
+            return .Registered
+        } else if pushesPrompted {
+            return .Denied
+        } else {
+            return .NotDetermined
+        }
+    }
+    
+    private let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
+    private var pushesPrompted : Bool {
+        get {
+            return NSUserDefaults.standardUserDefaults().objectForKey(ONXPushNotificationsPromptedKey) != nil
+        }
+        set {
+            NSUserDefaults.standardUserDefaults().setBool(newValue, forKey: ONXPushNotificationsPromptedKey)
+        }
     }
     
     //MARK: Handling AppDelegate actions
