@@ -30,37 +30,35 @@ class PushInfo : NSObject {
 }
 
 class ONXPushManager: NSObject {
-//    internal let keychain = Keychain(service: NSBundle.mainBundle().bundleIdentifier!)
-//    internal let kKeychainPushToken = "kKeychainPushToken"
-    
     weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
     private var pendingPush : PushInfo?
     
-    private func iOS8() -> Bool {
-        switch UIDevice.currentDevice().systemVersion.compare("8.0.0", options: NSStringCompareOptions.NumericSearch) {
-        case .OrderedSame, .OrderedDescending:
-            return true
-        case .OrderedAscending:
-            return false
-        }
-    }
-    
     //MARK: Public API
-    func start(app: UIApplication, launchOptions: [String : AnyObject]?) {
-        let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
-        let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
-        
-        app.registerUserNotificationSettings(mySettings)
+    func start(app: UIApplication, launchOptions: [String : AnyObject]?, registerNow: Bool) {
+        if (registerNow) {
+            self.registerPushes(app)
+        }
         
         if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
             self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
         }
     }
     
+    func registerPushes(app: UIApplication) {
+        let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
+        let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
+        
+        app.registerUserNotificationSettings(mySettings)
+    }
+    
+    func registered() -> Bool {
+        return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
+    }
+    
     //MARK: Handling AppDelegate actions
     func handleApplicationDidBecomeActive(app: UIApplication) {
-        if let push = self.pendingPush { //Means that poll_id has been received before the app became active, and once it's active we need to do some action
+        if let push = self.pendingPush { //Means that push has been received before the app became active, and once it's active we need to do some action
             self.actFromPush(push)
         }
         
