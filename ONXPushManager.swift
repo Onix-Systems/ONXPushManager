@@ -41,7 +41,7 @@ class ONXPushManager: NSObject {
     private var pendingPush : PushInfo?
     
     //MARK: Public API
-    func start(app: UIApplication, launchOptions: [String : AnyObject]?, registerNow: Bool) {
+    func start(app: UIApplication, launchOptions: [NSObject : AnyObject]?, registerNow: Bool) {
         if (registerNow) {
             self.registerPushes(app)
         }
