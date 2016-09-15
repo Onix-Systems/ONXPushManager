@@ -7,10 +7,10 @@
 //
 
 class PushInfo : NSObject {
-    let userInfo : [NSObject : AnyObject]
+    let userInfo : [AnyHashable: Any]
     let receivedAtState : UIApplicationState
     
-    init (userInfo: [NSObject : AnyObject], applicationState: UIApplicationState) {
+    init (userInfo: [AnyHashable: Any], applicationState: UIApplicationState) {
         self.userInfo = userInfo
         self.receivedAtState = applicationState
     }
@@ -19,72 +19,72 @@ class PushInfo : NSObject {
 }
 
 @objc protocol ONXPushManagerDelegate : NSObjectProtocol {
-    func savedPushTokenForPushManager(manager: ONXPushManager) -> String?
-    func pushTokenShouldBeSentToBackend(token: String, manager: ONXPushManager)
-    func pushToken(token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
-    func pushTokenForStoringNotFoundInManager(manager: ONXPushManager)
-    func pushDelegateShouldActOnPush(pushInfo: PushInfo, manager: ONXPushManager)
+    func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
+    func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
+    func pushToken(_ token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
+    func pushTokenForStoringNotFoundInManager(_ manager: ONXPushManager)
+    func pushDelegateShouldActOnPush(_ pushInfo: PushInfo, manager: ONXPushManager)
     
-    optional
-    func pushManagerDidHandleApplicationActivation(manager: ONXPushManager)
+    @objc optional
+    func pushManagerDidHandleApplicationActivation(_ manager: ONXPushManager)
 }
 
 enum ONXPushNotificationsRegistrationStatus {
-    case NotDetermined
-    case Registered
-    case Denied
+    case notDetermined
+    case registered
+    case denied
 }
 
 class ONXPushManager: NSObject {
     weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
-    private var pendingPush : PushInfo?
+    fileprivate var pendingPush : PushInfo?
     
     //MARK: Public API
-    func start(app: UIApplication, launchOptions: [NSObject : AnyObject]?, registerNow: Bool) {
+    func start(_ app: UIApplication, launchOptions: [AnyHashable: Any]?, registerNow: Bool) {
         if (registerNow) {
             self.registerPushes(app)
         }
         
-        if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsRemoteNotificationKey] as? [String : AnyObject] {
+        if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
             self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
         }
     }
     
-    func registerPushes(app: UIApplication) {
-        let types: UIUserNotificationType = [.Badge, .Sound, .Alert]
-        let mySettings = UIUserNotificationSettings(forTypes: types, categories: nil)
+    func registerPushes(_ app: UIApplication) {
+        let types: UIUserNotificationType = [.badge, .sound, .alert]
+        let mySettings = UIUserNotificationSettings(types: types, categories: nil)
         
         app.registerUserNotificationSettings(mySettings)
         self.pushesPrompted = true
     }
     
     func registered() -> Bool {
-        return pushNotificationsRegistrationStatus() == .Registered
+        return pushNotificationsRegistrationStatus() == .registered
     }
     
     func pushNotificationsRegistrationStatus() -> ONXPushNotificationsRegistrationStatus {
-        if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
-            return .Registered
+        if UIApplication.shared.isRegisteredForRemoteNotifications {
+            return .registered
         } else if pushesPrompted {
-            return .Denied
+            return .denied
         } else {
-            return .NotDetermined
+            return .notDetermined
         }
     }
     
-    private let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
-    private var pushesPrompted : Bool {
+    fileprivate let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
+    fileprivate var pushesPrompted : Bool {
         get {
-            return NSUserDefaults.standardUserDefaults().objectForKey(ONXPushNotificationsPromptedKey) != nil
+            return UserDefaults.standard.object(forKey: ONXPushNotificationsPromptedKey) != nil
         }
         set {
-            NSUserDefaults.standardUserDefaults().setBool(newValue, forKey: ONXPushNotificationsPromptedKey)
+            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsPromptedKey)
         }
     }
     
     //MARK: Handling AppDelegate actions
-    func handleApplicationDidBecomeActive(app: UIApplication) {
+    func handleApplicationDidBecomeActive(_ app: UIApplication) {
         if let push = self.pendingPush { //Means that push has been received before the app became active, and once it's active we need to do some action
             self.actFromPush(push)
         }
@@ -92,34 +92,34 @@ class ONXPushManager: NSObject {
         self.pendingPush = nil
     }
     
-    func handleDidFailToRegisterWithError(error: NSError) {
+    func handleDidFailToRegisterWithError(_ error: Error) {
         print("ERROR \(error)")
     }
     
-    func handleDidRecieveNotification(userInfo: [NSObject : AnyObject], app: UIApplication, handler: ((UIBackgroundFetchResult) -> Void)?) {
+    func handleDidRecieveNotification(_ userInfo: [AnyHashable: Any], app: UIApplication, handler: ((UIBackgroundFetchResult) -> Void)?) {
         print("PUSH \(userInfo)")
         
         switch app.applicationState {
-        case .Active:
+        case .active:
             print("state - active")
             self.pendingPush = nil
             
             let pushInfo = PushInfo(userInfo: userInfo, applicationState: app.applicationState)
             self.actFromPush(pushInfo)
-        case .Inactive:
+        case .inactive:
             print("state - inactive")
             self.pendingPush = PushInfo(userInfo: userInfo, applicationState: app.applicationState)
-        case .Background:
+        case .background:
             print("state - background")
         }
         
-        handler?(UIBackgroundFetchResult.NoData)
+        handler?(UIBackgroundFetchResult.noData)
     }
     
-    func handleDidRegisterWithTokenData(data: NSData) {
-        print("DidRegisterWithTokenData bytes \(data.bytes)")
-        let trimmedString = data.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
-        self.latestToken = trimmedString.stringByReplacingOccurrencesOfString(" ", withString: "", options: [], range: nil)
+    func handleDidRegisterWithTokenData(_ data: Data) {
+        print("DidRegisterWithTokenData bytes \((data as NSData).bytes)")
+        let trimmedString = data.description.trimmingCharacters(in: CharacterSet(charactersIn: "<>"))
+        self.latestToken = trimmedString.replacingOccurrences(of: " ", with: "", options: [], range: nil)
         
         //DO NOT DELETE, useful for release debug
 //        if let token = self.latestToken {
@@ -132,7 +132,7 @@ class ONXPushManager: NSObject {
         self.updatePushesWithLatestToken()
     }
     
-    private func actFromPush(pushInfo: PushInfo) {
+    fileprivate func actFromPush(_ pushInfo: PushInfo) {
         self.delegate?.pushDelegateShouldActOnPush(pushInfo, manager: self)
         
         //Your actions upon push here, below is example
@@ -159,12 +159,12 @@ class ONXPushManager: NSObject {
         }
     }
     
-    private func savedPushToken() -> String? {
+    fileprivate func savedPushToken() -> String? {
         return self.delegate?.savedPushTokenForPushManager(self)
     }
     
     @available(iOS 8.0, *)
-    func handleDidRegisterUserNotificationSettings(settings: UIUserNotificationSettings, application: UIApplication) {
+    func handleDidRegisterUserNotificationSettings(_ settings: UIUserNotificationSettings, application: UIApplication) {
         application.registerForRemoteNotifications()
     }
 }
