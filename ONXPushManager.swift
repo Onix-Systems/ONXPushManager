@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
+import UserNotifications
+
 class PushInfo : NSObject {
     let userInfo : [AnyHashable: Any]
     let receivedAtState : UIApplicationState
@@ -24,6 +26,7 @@ class PushInfo : NSObject {
     func pushToken(_ token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
     func pushTokenForStoringNotFoundInManager(_ manager: ONXPushManager)
     func pushDelegateShouldActOnPush(_ pushInfo: PushInfo, manager: ONXPushManager)
+    func pushManager(manager: ONXPushManager, didGetNotificationsRegisterError error: Error)
     
     @objc optional
     func pushManagerDidHandleApplicationActivation(_ manager: ONXPushManager)
@@ -55,7 +58,22 @@ class ONXPushManager: NSObject {
         let types: UIUserNotificationType = [.badge, .sound, .alert]
         let mySettings = UIUserNotificationSettings(types: types, categories: nil)
         
-        app.registerUserNotificationSettings(mySettings)
+        if #available(iOS 10.0, *) {
+            let center = UNUserNotificationCenter.current()
+            center.delegate = self
+            center.requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { (granted, error) in
+                self.denied = !granted
+                
+                if let uError = error {
+                    self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
+                } else {
+                    app.registerUserNotificationSettings(mySettings)
+                }
+            })
+        } else {
+            app.registerUserNotificationSettings(mySettings)
+        }
+        
         self.pushesPrompted = true
     }
     
@@ -66,10 +84,27 @@ class ONXPushManager: NSObject {
     func pushNotificationsRegistrationStatus() -> ONXPushNotificationsRegistrationStatus {
         if UIApplication.shared.isRegisteredForRemoteNotifications {
             return .registered
-        } else if pushesPrompted {
-            return .denied
         } else {
-            return .notDetermined
+            if #available(iOS 10.0, *) {
+                if denied {
+                    return .denied
+                }
+            } else if pushesPrompted {
+                return .denied
+            }
+        }
+        
+        return .notDetermined
+    }
+    
+    fileprivate let ONXPushNotificationsDeniedKey = "ONXPushNotificationsDeniedKey"
+    @available(iOS 10.0, *)
+    fileprivate var denied : Bool {
+        get {
+            return UserDefaults.standard.object(forKey: ONXPushNotificationsDeniedKey) != nil
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsDeniedKey)
         }
     }
     
@@ -118,8 +153,13 @@ class ONXPushManager: NSObject {
     
     func handleDidRegisterWithTokenData(_ data: Data) {
         print("DidRegisterWithTokenData bytes \((data as NSData).bytes)")
-        let trimmedString = data.description.trimmingCharacters(in: CharacterSet(charactersIn: "<>"))
-        self.latestToken = trimmedString.replacingOccurrences(of: " ", with: "", options: [], range: nil)
+        
+        var token: String = ""
+        for i in 0..<data.count {
+            token += String(format: "%02.2hhx", data[i] as CVarArg)
+        }
+        
+        self.latestToken = token
         
         //DO NOT DELETE, useful for release debug
 //        if let token = self.latestToken {
@@ -166,5 +206,17 @@ class ONXPushManager: NSObject {
     @available(iOS 8.0, *)
     func handleDidRegisterUserNotificationSettings(_ settings: UIUserNotificationSettings, application: UIApplication) {
         application.registerForRemoteNotifications()
+    }
+}
+
+@available(iOS 10.0, *)
+extension ONXPushManager : UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        print("userNotificationCenter willPresent \(notification)")
+        completionHandler(.alert)
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        print("userNotificationCenter didReceive \(response)")
     }
 }
