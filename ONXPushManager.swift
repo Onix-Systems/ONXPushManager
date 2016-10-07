@@ -46,7 +46,11 @@ class ONXPushManager: NSObject {
     //MARK: Public API
     func start(_ app: UIApplication, launchOptions: [AnyHashable: Any]?, registerNow: Bool) {
         if (registerNow) {
-            self.registerPushes(app)
+            if #available(iOS 10.0, *) {
+                self.registerPushes(app, completion: nil)
+            } else {
+                self.registerPushes(app)
+            }
         }
         
         if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
@@ -54,25 +58,34 @@ class ONXPushManager: NSObject {
         }
     }
     
+    @available(iOS, obsoleted: 10.0)
     func registerPushes(_ app: UIApplication) {
         let types: UIUserNotificationType = [.badge, .sound, .alert]
         let mySettings = UIUserNotificationSettings(types: types, categories: nil)
+        app.registerUserNotificationSettings(mySettings)
+        self.pushesPrompted = true
+    }
+    
+    @available(iOS 10.0, *)
+    func registerPushes(_ app: UIApplication, completion: ((_ granted: Bool) -> ())?) {
+        let types: UIUserNotificationType = [.badge, .sound, .alert]
+        let mySettings = UIUserNotificationSettings(types: types, categories: nil)
         
-        if #available(iOS 10.0, *) {
-            let center = UNUserNotificationCenter.current()
-            center.delegate = self
-            center.requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { (granted, error) in
-                self.denied = !granted
-                
-                if let uError = error {
-                    self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
-                } else {
-                    app.registerUserNotificationSettings(mySettings)
-                }
-            })
-        } else {
-            app.registerUserNotificationSettings(mySettings)
-        }
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        center.requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { (granted, error) in
+            self.denied = !granted
+            
+            if let uError = error {
+                self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
+            } else {
+                app.registerUserNotificationSettings(mySettings)
+            }
+            
+            if let c = completion {
+                c(granted)
+            }
+        })
         
         self.pushesPrompted = true
     }
