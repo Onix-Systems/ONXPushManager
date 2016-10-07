@@ -138,6 +138,7 @@ class ONXPushManager: NSObject {
         }
         
         self.pendingPush = nil
+        self.delegate?.pushManagerDidHandleApplicationActivation?(self)
     }
     
     func handleDidFailToRegisterWithError(_ error: Error) {
