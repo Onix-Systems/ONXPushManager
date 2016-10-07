@@ -230,6 +230,7 @@ extension ONXPushManager : UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("userNotificationCenter didReceive \(response)")
+        
+        self.handleDidRecieveNotification(response.notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
     }
 }
