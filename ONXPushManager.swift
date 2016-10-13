@@ -23,7 +23,8 @@ class PushInfo : NSObject {
 @objc protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
     func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
-    func pushToken(_ token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
+    func pushToken(savedToken token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
+    func updateRequested(withSameToken token: String, in manager: ONXPushManager)
     func pushTokenForStoringNotFoundInManager(_ manager: ONXPushManager)
     func pushDelegateShouldActOnPush(_ pushInfo: PushInfo, manager: ONXPushManager)
     func pushManager(manager: ONXPushManager, didGetNotificationsRegisterError error: Error)
@@ -188,8 +189,6 @@ class ONXPushManager: NSObject {
     
     fileprivate func actFromPush(_ pushInfo: PushInfo) {
         self.delegate?.pushDelegateShouldActOnPush(pushInfo, manager: self)
-        
-        //Your actions upon push here, below is example
     }
     
     func updatePushesWithLatestToken() {
@@ -198,13 +197,14 @@ class ONXPushManager: NSObject {
         if let deviceToken = self.latestToken {
             if let savedToken = self.savedPushToken() {
                 if savedToken != deviceToken {
-                    //UPDATE REQUEST
-                    self.delegate?.pushToken(savedToken, shouldBeUpdatedOnBackendWith: deviceToken, manager: self)
+                    //Update request should be sent from delegate
+                    self.delegate?.pushToken(savedToken: savedToken, shouldBeUpdatedOnBackendWith: deviceToken, manager: self)
                 } else {
-                    print("updatePushesWithLatestToken - not updating - same token")
+                    //Depends on backend probably, but in our application it's Post request, because our backend checks if there is already this token in database.
+                    self.delegate?.updateRequested(withSameToken: deviceToken, in: self)
                 }
             } else {
-                //POST REQUEST
+                //Post request should be sent from delegate
                 self.delegate?.pushTokenShouldBeSentToBackend(deviceToken, manager: self)
             }
         }
