@@ -28,6 +28,7 @@ class PushInfo : NSObject {
     func pushTokenForStoringNotFoundInManager(_ manager: ONXPushManager)
     func pushDelegateShouldActOnPush(_ pushInfo: PushInfo, manager: ONXPushManager)
     func pushManager(manager: ONXPushManager, didGetNotificationsRegisterError error: Error)
+    func didSetNewLatest(token: String, in manager: ONXPushManager)
     
     @objc optional
     func pushManagerDidHandleApplicationActivation(_ manager: ONXPushManager)
@@ -175,6 +176,7 @@ class ONXPushManager: NSObject {
         }
         
         self.latestToken = token
+        delegate?.didSetNewLatest(token: token, in: self)
         
         //DO NOT DELETE, useful for release debug
 //        if let token = self.latestToken {
