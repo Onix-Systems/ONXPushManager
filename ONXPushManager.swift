@@ -20,7 +20,7 @@ class PushInfo : NSObject {
     var customObject : AnyObject?
 }
 
-@objc protocol ONXPushManagerDelegate : NSObjectProtocol {
+protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
     func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
     func pushToken(savedToken token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
@@ -29,12 +29,10 @@ class PushInfo : NSObject {
     func pushDelegateShouldActOnPush(_ pushInfo: PushInfo, manager: ONXPushManager)
     func pushManager(manager: ONXPushManager, didGetNotificationsRegisterError error: Error)
     func didSetNewLatest(token: String, in manager: ONXPushManager)
-    
-    @objc optional
     func pushManagerDidHandleApplicationActivation(_ manager: ONXPushManager)
 }
 
-enum ONXPushNotificationsRegistrationStatus {
+enum ONXPushNotificationsRegistrationStatus : String {
     case notDetermined
     case registered
     case denied
@@ -140,7 +138,7 @@ class ONXPushManager: NSObject {
         }
         
         self.pendingPush = nil
-        self.delegate?.pushManagerDidHandleApplicationActivation?(self)
+        self.delegate?.pushManagerDidHandleApplicationActivation(self)
     }
     
     func handleDidFailToRegisterWithError(_ error: Error) {
