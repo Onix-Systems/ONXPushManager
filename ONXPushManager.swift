@@ -20,7 +20,7 @@ class PushInfo : NSObject {
     var customObject : AnyObject?
 }
 
-protocol ONXPushManagerDelegate : NSObjectProtocol {
+@objc protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
     func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
     func pushToken(savedToken token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
