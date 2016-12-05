@@ -42,6 +42,7 @@ class ONXPushManager: NSObject {
     weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
     fileprivate var pendingPush : PushInfo?
+    var shouldShowSystemAlertOnPush = true
     
     //MARK: Public API
     func start(_ app: UIApplication, launchOptions: [AnyHashable: Any]?, registerNow: Bool) {
@@ -227,11 +228,18 @@ class ONXPushManager: NSObject {
 extension ONXPushManager : UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         print("userNotificationCenter willPresent \(notification)")
-        completionHandler([.alert, .sound])
+        if shouldShowSystemAlertOnPush {
+            completionHandler([.alert, .sound])
+        } else {
+            handleDidRecieveNotification(notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
+        }
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        
-        self.handleDidRecieveNotification(response.notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
+        if shouldShowSystemAlertOnPush {
+            completionHandler()
+        }else{
+          handleDidRecieveNotification(response.notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
+        }
     }
 }
