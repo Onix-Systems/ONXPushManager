@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
+import UIKit
 import UserNotifications
 
 class PushInfo : NSObject {
