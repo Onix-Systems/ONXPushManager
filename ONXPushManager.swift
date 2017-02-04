@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Onix. All rights reserved.
 //
 
-import UIKit
 import UserNotifications
 
 class PushInfo : NSObject {
@@ -21,7 +20,7 @@ class PushInfo : NSObject {
     var customObject : AnyObject?
 }
 
-@objc protocol ONXPushManagerDelegate : NSObjectProtocol {
+protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
     func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
     func pushToken(savedToken token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
@@ -31,6 +30,9 @@ class PushInfo : NSObject {
     func pushManager(manager: ONXPushManager, didGetNotificationsRegisterError error: Error)
     func didSetNewLatest(token: String, in manager: ONXPushManager)
     func pushManagerDidHandleApplicationActivation(_ manager: ONXPushManager)
+    
+    @available(iOS 10.0, *)
+    func willPresent(pushNotification: PushInfo, in manager: ONXPushManager)
 }
 
 enum ONXPushNotificationsRegistrationStatus : String {
@@ -43,7 +45,6 @@ class ONXPushManager: NSObject {
     weak var delegate: ONXPushManagerDelegate?
     internal var latestToken: String?
     fileprivate var pendingPush : PushInfo?
-    var shouldShowSystemAlertOnPush = true
     
     //MARK: Public API
     func start(_ app: UIApplication, launchOptions: [AnyHashable: Any]?, registerNow: Bool) {
@@ -228,19 +229,13 @@ class ONXPushManager: NSObject {
 @available(iOS 10.0, *)
 extension ONXPushManager : UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print("userNotificationCenter willPresent \(notification)")
-        if shouldShowSystemAlertOnPush {
-            completionHandler([.alert, .sound])
-        } else {
-            handleDidRecieveNotification(notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
-        }
+        let pushInfo = PushInfo(userInfo: notification.request.content.userInfo, applicationState: UIApplication.shared.applicationState)
+        delegate?.willPresent(pushNotification: pushInfo, in: self)
+        completionHandler([.alert, .sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if shouldShowSystemAlertOnPush {
-            completionHandler()
-        }else{
-          handleDidRecieveNotification(response.notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
-        }
+        
+        self.handleDidRecieveNotification(response.notification.request.content.userInfo, app: UIApplication.shared, handler: nil)
     }
 }

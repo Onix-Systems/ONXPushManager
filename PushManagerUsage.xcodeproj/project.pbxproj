@@ -12,8 +12,19 @@
 		2F86FF2F1AD339380085BC6A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F86FF2D1AD339380085BC6A /* Main.storyboard */; };
 		2F86FF311AD339380085BC6A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F86FF301AD339380085BC6A /* Images.xcassets */; };
 		2F86FF341AD339380085BC6A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F86FF321AD339380085BC6A /* LaunchScreen.xib */; };
+		2F86FF401AD339390085BC6A /* PushManagerUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F86FF3F1AD339390085BC6A /* PushManagerUsageTests.swift */; };
 		2F86FF4A1AD3398E0085BC6A /* ONXPushManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F86FF491AD3398E0085BC6A /* ONXPushManager.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2F86FF3A1AD339390085BC6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2F86FF1C1AD339380085BC6A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2F86FF231AD339380085BC6A;
+			remoteInfo = PushManagerUsage;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		2F86FF241AD339380085BC6A /* PushManagerUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PushManagerUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -23,11 +34,21 @@
 		2F86FF2E1AD339380085BC6A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2F86FF301AD339380085BC6A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		2F86FF331AD339380085BC6A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		2F86FF391AD339390085BC6A /* PushManagerUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PushManagerUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F86FF3E1AD339390085BC6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2F86FF3F1AD339390085BC6A /* PushManagerUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushManagerUsageTests.swift; sourceTree = "<group>"; };
 		2F86FF491AD3398E0085BC6A /* ONXPushManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ONXPushManager.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		2F86FF211AD339380085BC6A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2F86FF361AD339390085BC6A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -41,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				2F86FF261AD339380085BC6A /* PushManagerUsage */,
+				2F86FF3C1AD339390085BC6A /* PushManagerUsageTests */,
 				2F86FF251AD339380085BC6A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -49,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				2F86FF241AD339380085BC6A /* PushManagerUsage.app */,
+				2F86FF391AD339390085BC6A /* PushManagerUsageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,6 +98,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		2F86FF3C1AD339390085BC6A /* PushManagerUsageTests */ = {
+			isa = PBXGroup;
+			children = (
+				2F86FF3F1AD339390085BC6A /* PushManagerUsageTests.swift */,
+				2F86FF3D1AD339390085BC6A /* Supporting Files */,
+			);
+			path = PushManagerUsageTests;
+			sourceTree = "<group>";
+		};
+		2F86FF3D1AD339390085BC6A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2F86FF3E1AD339390085BC6A /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -95,6 +135,24 @@
 			productReference = 2F86FF241AD339380085BC6A /* PushManagerUsage.app */;
 			productType = "com.apple.product-type.application";
 		};
+		2F86FF381AD339390085BC6A /* PushManagerUsageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F86FF461AD339390085BC6A /* Build configuration list for PBXNativeTarget "PushManagerUsageTests" */;
+			buildPhases = (
+				2F86FF351AD339390085BC6A /* Sources */,
+				2F86FF361AD339390085BC6A /* Frameworks */,
+				2F86FF371AD339390085BC6A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2F86FF3B1AD339390085BC6A /* PBXTargetDependency */,
+			);
+			name = PushManagerUsageTests;
+			productName = PushManagerUsageTests;
+			productReference = 2F86FF391AD339390085BC6A /* PushManagerUsageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -106,7 +164,10 @@
 				TargetAttributes = {
 					2F86FF231AD339380085BC6A = {
 						CreatedOnToolsVersion = 6.2;
-						LastSwiftMigration = 0820;
+					};
+					2F86FF381AD339390085BC6A = {
+						CreatedOnToolsVersion = 6.2;
+						TestTargetID = 2F86FF231AD339380085BC6A;
 					};
 				};
 			};
@@ -124,6 +185,7 @@
 			projectRoot = "";
 			targets = (
 				2F86FF231AD339380085BC6A /* PushManagerUsage */,
+				2F86FF381AD339390085BC6A /* PushManagerUsageTests */,
 			);
 		};
 /* End PBXProject section */
@@ -136,6 +198,13 @@
 				2F86FF2F1AD339380085BC6A /* Main.storyboard in Resources */,
 				2F86FF341AD339380085BC6A /* LaunchScreen.xib in Resources */,
 				2F86FF311AD339380085BC6A /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2F86FF371AD339390085BC6A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,7 +221,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2F86FF351AD339390085BC6A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2F86FF401AD339390085BC6A /* PushManagerUsageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2F86FF3B1AD339390085BC6A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2F86FF231AD339380085BC6A /* PushManagerUsage */;
+			targetProxy = 2F86FF3A1AD339390085BC6A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2F86FF2D1AD339380085BC6A /* Main.storyboard */ = {
@@ -258,7 +343,6 @@
 				INFOPLIST_FILE = PushManagerUsage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -269,7 +353,40 @@
 				INFOPLIST_FILE = PushManagerUsage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+		2F86FF471AD339390085BC6A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = PushManagerUsageTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushManagerUsage.app/PushManagerUsage";
+			};
+			name = Debug;
+		};
+		2F86FF481AD339390085BC6A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = PushManagerUsageTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushManagerUsage.app/PushManagerUsage";
 			};
 			name = Release;
 		};
@@ -290,6 +407,15 @@
 			buildConfigurations = (
 				2F86FF441AD339390085BC6A /* Debug */,
 				2F86FF451AD339390085BC6A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2F86FF461AD339390085BC6A /* Build configuration list for PBXNativeTarget "PushManagerUsageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F86FF471AD339390085BC6A /* Debug */,
+				2F86FF481AD339390085BC6A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
