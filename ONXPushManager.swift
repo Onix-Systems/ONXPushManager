@@ -7,6 +7,7 @@
 //
 
 import UserNotifications
+import UIKit
 
 class PushInfo : NSObject {
     let userInfo : [AnyHashable: Any]
@@ -20,7 +21,7 @@ class PushInfo : NSObject {
     var customObject : AnyObject?
 }
 
-protocol ONXPushManagerDelegate : NSObjectProtocol {
+@objc protocol ONXPushManagerDelegate : NSObjectProtocol {
     func savedPushTokenForPushManager(_ manager: ONXPushManager) -> String?
     func pushTokenShouldBeSentToBackend(_ token: String, manager: ONXPushManager)
     func pushToken(savedToken token: String, shouldBeUpdatedOnBackendWith newToken: String, manager: ONXPushManager)
@@ -41,13 +42,50 @@ enum ONXPushNotificationsRegistrationStatus : String {
     case denied
 }
 
-class ONXPushManager: NSObject {
+@objc class ONXPushManager: NSObject {
     weak var delegate: ONXPushManagerDelegate?
-    internal var latestToken: String?
+    var shouldShowSystemInAppAlert : Bool = true
+    private var latestToken: String?
     fileprivate var pendingPush : PushInfo?
     
+    fileprivate let ONXPushNotificationsDeniedKey = "ONXPushNotificationsDeniedKey"
+    fileprivate let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
+    
+    @available(iOS 10.0, *)
+    fileprivate var denied : Bool {
+        get {
+            return UserDefaults.standard.object(forKey: ONXPushNotificationsDeniedKey) != nil
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsDeniedKey)
+        }
+    }
+    
+    fileprivate var pushesPrompted : Bool {
+        get {
+            return UserDefaults.standard.object(forKey: ONXPushNotificationsPromptedKey) != nil
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsPromptedKey)
+        }
+    }
+    
     //MARK: Public API
+    /**
+     This method should be called from applicationDidFinishLaunching because of Apple Doc Note:
+     "You must assign your delegate object to the UNUserNotificationCenter object no later before your app finishes launching. For example, in an iOS app, you must assign it in the application(_:willFinishLaunchingWithOptions:) or application(_:didFinishLaunchingWithOptions:) method."
+     
+     @param registerNow If true - will call application.registerUserNotificationSettings(settings:) on iOS <= 9 or userNotificationCenter.requestAuthorization(options:completionHandler:) on iOS >= 10
+     
+     */
     func start(_ app: UIApplication, launchOptions: [AnyHashable: Any]?, registerNow: Bool) {
+        if #available(iOS 10.0, *) {
+            let center = UNUserNotificationCenter.current()
+            center.delegate = self
+        } else {
+            // Fallback on earlier versions
+        }
+        
         if (registerNow) {
             if #available(iOS 10.0, *) {
                 self.registerPushes(app, completion: nil)
@@ -59,6 +97,13 @@ class ONXPushManager: NSObject {
         if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
             self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
         }
+    }
+    
+    func startAndRegisterIfAlreadyRegistered(_ app: UIApplication, launchOptions: [AnyHashable: Any]?) {
+        let status = self.pushNotificationsRegistrationStatus()
+        print("push registration status \(status)")
+        let registered = status == .registered
+        start(app, launchOptions: launchOptions, registerNow: registered)
     }
     
     @available(iOS, obsoleted: 10.0)
@@ -111,27 +156,6 @@ class ONXPushManager: NSObject {
         }
         
         return .notDetermined
-    }
-    
-    fileprivate let ONXPushNotificationsDeniedKey = "ONXPushNotificationsDeniedKey"
-    @available(iOS 10.0, *)
-    fileprivate var denied : Bool {
-        get {
-            return UserDefaults.standard.object(forKey: ONXPushNotificationsDeniedKey) != nil
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsDeniedKey)
-        }
-    }
-    
-    fileprivate let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
-    fileprivate var pushesPrompted : Bool {
-        get {
-            return UserDefaults.standard.object(forKey: ONXPushNotificationsPromptedKey) != nil
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsPromptedKey)
-        }
     }
     
     //MARK: Handling AppDelegate actions
@@ -231,7 +255,7 @@ extension ONXPushManager : UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         let pushInfo = PushInfo(userInfo: notification.request.content.userInfo, applicationState: UIApplication.shared.applicationState)
         delegate?.willPresent(pushNotification: pushInfo, in: self)
-        completionHandler([.alert, .sound])
+        completionHandler(shouldShowSystemInAppAlert ? [.alert, .sound] : [])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
