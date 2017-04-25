@@ -185,7 +185,7 @@ class ONXPushManager: NSObject {
 //            pasteboard.string = token
 //        }
         
-        print(" handleDidRegisterWithTokenDataself.latestToken \(self.latestToken)")
+        print(" handleDidRegisterWithTokenDataself.latestToken \(String(describing: self.latestToken))")
         
         self.updatePushesWithLatestToken()
     }
