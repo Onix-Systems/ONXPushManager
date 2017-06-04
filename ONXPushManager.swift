@@ -173,7 +173,9 @@ enum ONXPushNotificationsRegistrationStatus : String {
     }
     
     func handleDidRecieveNotification(_ userInfo: [AnyHashable: Any], app: UIApplication, handler: ((UIBackgroundFetchResult) -> Void)?) {
+        #if DEBUG
         print("PUSH \(userInfo)")
+        #endif
         
         switch app.applicationState {
         case .active:
@@ -193,7 +195,9 @@ enum ONXPushNotificationsRegistrationStatus : String {
     }
     
     func handleDidRegisterWithTokenData(_ data: Data) {
+        #if DEBUG
         print("DidRegisterWithTokenData bytes \((data as NSData).bytes)")
+        #endif
         
         var token: String = ""
         for i in 0..<data.count {
@@ -208,8 +212,10 @@ enum ONXPushNotificationsRegistrationStatus : String {
 //            let pasteboard = UIPasteboard.generalPasteboard()
 //            pasteboard.string = token
 //        }
-        
-        print(" handleDidRegisterWithTokenDataself.latestToken \(String(describing: self.latestToken))")
+
+        #if DEBUG
+        print("handleDidRegisterWithTokenDataself.latestToken \(String(describing: self.latestToken))")
+        #endif
         
         self.updatePushesWithLatestToken()
     }
