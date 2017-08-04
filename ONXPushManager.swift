@@ -122,16 +122,18 @@ enum ONXPushNotificationsRegistrationStatus : String {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
         center.requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { (granted, error) in
-            self.denied = !granted
-            
-            if let uError = error {
-                self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
-            } else {
-                app.registerUserNotificationSettings(mySettings)
-            }
-            
-            if let c = completion {
-                c(granted)
+            DispatchQueue.main.async {
+                self.denied = !granted
+
+                if let uError = error {
+                    self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
+                } else {
+                    app.registerUserNotificationSettings(mySettings)
+                }
+
+                if let c = completion {
+                    c(granted)
+                }
             }
         })
         
