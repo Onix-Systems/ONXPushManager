@@ -40,9 +40,22 @@ enum ONXPushNotificationsRegistrationStatus : String {
     case notDetermined
     case registered
     case denied
+
+    @available(iOS 10.0, *)
+    static func fromAuthorizationStatus(_ authorizationStatus: UNAuthorizationStatus) -> ONXPushNotificationsRegistrationStatus {
+        switch authorizationStatus {
+        case .authorized:
+            return .registered
+        case .denied:
+            return .denied
+        case .notDetermined:
+            return .notDetermined
+        }
+    }
 }
 
 @objc class ONXPushManager: NSObject {
+    private typealias Class = ONXPushManager
     weak var delegate: ONXPushManagerDelegate?
     var shouldShowSystemInAppAlert : Bool = true
     private var latestToken: String?
@@ -50,16 +63,6 @@ enum ONXPushNotificationsRegistrationStatus : String {
     
     fileprivate let ONXPushNotificationsDeniedKey = "ONXPushNotificationsDeniedKey"
     fileprivate let ONXPushNotificationsPromptedKey = "ONXPushNotificationsPromptedKey"
-    
-    @available(iOS 10.0, *)
-    fileprivate var denied : Bool {
-        get {
-            return UserDefaults.standard.object(forKey: ONXPushNotificationsDeniedKey) != nil
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ONXPushNotificationsDeniedKey)
-        }
-    }
     
     fileprivate var pushesPrompted : Bool {
         get {
@@ -100,10 +103,11 @@ enum ONXPushNotificationsRegistrationStatus : String {
     }
     
     func startAndRegisterIfAlreadyRegistered(_ app: UIApplication, launchOptions: [AnyHashable: Any]?) {
-        let status = self.pushNotificationsRegistrationStatus()
-        print("push registration status \(status)")
-        let registered = status == .registered
-        start(app, launchOptions: launchOptions, registerNow: registered)
+        getPushNotificationsRegistrationStatus { [weak self] (status) in
+            print("push registration status \(status)")
+            let registered = status == .registered
+            self?.start(app, launchOptions: launchOptions, registerNow: registered)
+        }
     }
     
     @available(iOS, obsoleted: 10.0)
@@ -115,20 +119,13 @@ enum ONXPushNotificationsRegistrationStatus : String {
     }
     
     @available(iOS 10.0, *)
-    func registerPushes(_ app: UIApplication, completion: ((_ granted: Bool) -> ())?) {
-        let types: UIUserNotificationType = [.badge, .sound, .alert]
-        let mySettings = UIUserNotificationSettings(types: types, categories: nil)
-        
+    func registerPushes(_ app: UIApplication, completion: ((_ status: Bool) -> Void)?) {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
-        center.requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { (granted, error) in
+        center.requestAuthorization(options: Class.unAuthorizationOptions, completionHandler: { (granted, error) in
             DispatchQueue.main.async {
-                self.denied = !granted
-
                 if let uError = error {
                     self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
-                } else {
-                    app.registerUserNotificationSettings(mySettings)
                 }
 
                 if let c = completion {
@@ -139,25 +136,31 @@ enum ONXPushNotificationsRegistrationStatus : String {
         
         self.pushesPrompted = true
     }
+
+    @available(iOS 10.0, *)
+    private static let unAuthorizationOptions: UNAuthorizationOptions = [.badge, .sound, .alert]
     
-    func registered() -> Bool {
-        return pushNotificationsRegistrationStatus() == .registered
+    func getIsRegistered(completion: @escaping (Bool) -> Void) {
+        getPushNotificationsRegistrationStatus { (status) in
+            completion(status == .registered)
+        }
     }
     
-    func pushNotificationsRegistrationStatus() -> ONXPushNotificationsRegistrationStatus {
-        if UIApplication.shared.isRegisteredForRemoteNotifications {
-            return .registered
+    func getPushNotificationsRegistrationStatus(completion: @escaping (ONXPushNotificationsRegistrationStatus) -> Void) {
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+                completion(.fromAuthorizationStatus(settings.authorizationStatus))
+            }
         } else {
-            if #available(iOS 10.0, *) {
-                if denied {
-                    return .denied
-                }
+            // iOS 9
+            if UIApplication.shared.isRegisteredForRemoteNotifications {
+                completion(.registered)
             } else if pushesPrompted {
-                return .denied
+                completion(.denied)
+            } else {
+                completion(.notDetermined)
             }
         }
-        
-        return .notDetermined
     }
     
     //MARK: Handling AppDelegate actions
