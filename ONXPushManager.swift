@@ -126,6 +126,8 @@ enum ONXPushNotificationsRegistrationStatus : String {
             DispatchQueue.main.async {
                 if let uError = error {
                     self.delegate?.pushManager(manager: self, didGetNotificationsRegisterError: uError)
+                } else if granted {
+                    app.registerForRemoteNotifications()
                 }
 
                 if let c = completion {
@@ -133,6 +135,10 @@ enum ONXPushNotificationsRegistrationStatus : String {
                 }
             }
         })
+
+        // If you do not request and receive authorization for your app's interactions, the system delivers all remote notifications to your app silently.
+        // Currently we do it only if authorization granted and it's not customizable
+        // app.registerForRemoteNotifications()
         
         self.pushesPrompted = true
     }
@@ -199,7 +205,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         handler?(UIBackgroundFetchResult.noData)
     }
     
-    func handleDidRegisterWithTokenData(_ data: Data) {
+    func handleDidRegisterWithTokenData(_ data: Data) -> String {
         #if DEBUG
         print("DidRegisterWithTokenData bytes \((data as NSData).bytes)")
         #endif
@@ -212,7 +218,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         self.latestToken = token
         delegate?.didSetNewLatest(token: token, in: self)
         
-        //DO NOT DELETE, useful for release debug
+        // You can copy this to AppDelegate for production debugging
 //        if let token = self.latestToken {
 //            let pasteboard = UIPasteboard.generalPasteboard()
 //            pasteboard.string = token
@@ -223,6 +229,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         #endif
         
         self.updatePushesWithLatestToken()
+        return token
     }
     
     fileprivate func actFromPush(_ pushInfo: PushInfo) {
