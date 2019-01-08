@@ -46,7 +46,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         switch authorizationStatus {
         case .authorized:
             return .registered
-        case .denied:
+        case .denied, .provisional:
             return .denied
         case .notDetermined:
             return .notDetermined
