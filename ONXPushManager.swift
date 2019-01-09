@@ -11,9 +11,9 @@ import UIKit
 
 class PushInfo : NSObject {
     let userInfo : [AnyHashable: Any]
-    let receivedAtState : UIApplicationState
+    let receivedAtState : UIApplication.State
     
-    init (userInfo: [AnyHashable: Any], applicationState: UIApplicationState) {
+    init (userInfo: [AnyHashable: Any], applicationState: UIApplication.State) {
         self.userInfo = userInfo
         self.receivedAtState = applicationState
     }
@@ -46,7 +46,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         switch authorizationStatus {
         case .authorized:
             return .registered
-        case .denied:
+        case .denied, .provisional:
             return .denied
         case .notDetermined:
             return .notDetermined
@@ -97,7 +97,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
             }
         }
         
-        if let remoteOptions = launchOptions?[UIApplicationLaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
+        if let remoteOptions = launchOptions?[UIApplication.LaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
             self.handleDidRecieveNotification(remoteOptions, app: app, handler: nil)
         }
     }
