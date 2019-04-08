@@ -90,11 +90,7 @@ enum ONXPushNotificationsRegistrationStatus : String {
         }
         
         if (registerNow) {
-            if #available(iOS 10.0, *) {
-                self.registerPushes(app, completion: nil)
-            } else {
-                self.registerPushes(app)
-            }
+            self.registerPushes(app, completion: nil)
         }
         
         if let remoteOptions = launchOptions?[UIApplication.LaunchOptionsKey.remoteNotification] as? [String : AnyObject] {
@@ -108,14 +104,6 @@ enum ONXPushNotificationsRegistrationStatus : String {
             let registered = status == .registered
             self?.start(app, launchOptions: launchOptions, registerNow: registered)
         }
-    }
-    
-    @available(iOS, obsoleted: 10.0)
-    func registerPushes(_ app: UIApplication) {
-        let types: UIUserNotificationType = [.badge, .sound, .alert]
-        let mySettings = UIUserNotificationSettings(types: types, categories: nil)
-        app.registerUserNotificationSettings(mySettings)
-        self.pushesPrompted = true
     }
     
     @available(iOS 10.0, *)
